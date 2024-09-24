@@ -11,7 +11,7 @@
 library(opendatatoronto)
 library(dplyr)
 library(tidyverse)
-# [...UPDATE THIS...]
+
 
 #### Download data ####
 # get package
@@ -30,6 +30,6 @@ data
 
 #### Save data ####
 # change the_raw_data to whatever name you assigned when you downloaded it.
-write.csv(data, "Victims of Crime.csv") 
+write.csv(data, "data/raw_data/crime.csv") 
 
          
