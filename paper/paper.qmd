@@ -1,13 +1,13 @@
 ---
-title: "My title"
+title: "Analysis of characteristics in victims of crimes in Toronto"
 subtitle: "My subtitle if needed"
 author: 
-  - First author
-  - Another author
-thanks: "Code and data are available at: LINK."
+  - Xiyan Chen
+thanks: "Code and data are available at: https://github.com/siaxiyann/crime.git"
 date: today
 date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: This criterion is linked to a Learning OutcomeAbstract
+An abstract is included and appropriately pitched to a non-specialist audience. The abstract answers: 1) what was done, 2) what was found, and 3) why this matters (all at a high level). Likely four sentences. Abstract must make clear what we learn about the world because of this paper. "First sentence. Second sentence. Third sentence. Fourth sentence."
 format: pdf
 number-sections: true
 bibliography: references.bib
@@ -19,35 +19,74 @@ bibliography: references.bib
 #| message: false
 
 library(tidyverse)
-library(palmerpenguins)
+library(opendatatoronto)
+library(ggplot2)
+library(dplyr)
 ```
 
 
 # Introduction
 
-You can and should cross-reference sections and sub-sections. We use @citeR and @rohan.
+You can and should cross-reference sections and sub-sections. We use @citeR and @citeRohan
 
 The remainder of this paper is structured as follows. @sec-data....
-
+The introduction is self-contained and tells a reader everything they need to know including: 1) broader context to motivate; 2) some detail about what the paper is about; 3) a clear gap that needs to be filled; 4) what was done; 5) what was found; 6) why it is important; 7) the structure of the paper. A reader should be able to read only the introduction and know what was done, why, and what was found. Likely 3 or 4 paragraphs, or 10 per cent of total.
 
 
 # Data {#sec-data}
 
-Some of our data is of penguins (@fig-bills), from @palmerpenguins.
+Some of our data is of penguins (@zaizheli fig-bills), from @opendatatoronto.
+A sense of the dataset should be communicated to the reader. The broader context of the dataset should be discussed. All variables should be thoroughly examined and explained. Explain if there were similar datasets that could have been used and why they were not. If variables were constructed then this should be mentioned, and high-level cleaning aspects of note should be mentioned, but this section should focus on the destination, not the journey. It is important to understand what the variables look like by including graphs, and possibly tables, of all observations, along with discussion of those graphs and the other features of these data. Summary statistics should also be included, and well as any relationships between the variables. If this becomes too detailed, then appendices could be used.
+This criterion is linked to a Learning OutcomeMeasurement
+A thorough discussion of measurement, relating to the dataset, is provided in the data section.
+```{r}
+analysis_data <- read_csv("../data/raw_data/analysis_data.csv")
+```
 
 ```{r}
-#| label: fig-bills
-#| fig-cap: Bills of penguins
+#| label: fig-general_overview
+#| fig-cap: Distribution of crime types by year
 #| echo: false
 
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = "none") +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
+ggplot(analysis_data, aes(x = REPORT_YEAR, weight = COUNT_, fill = SUBTYPE)) +
+  geom_bar() + labs(title = 'crime cases overview from 2014-2023', y = 'total counts', x = 'report year') + 
+  scale_x_continuous(breaks = seq(min(analysis_data$REPORT_YEAR), max(analysis_data$REPORT_YEAR), by = 1))
+  #scale_fill_manual(values = c("darkorange","purple","cyan4"),
+  #                  guide = "none") +
+  #theme_minimal() +
+  #facet_wrap(~species, ncol = 1) +
+  #coord_flip()
 ```
+
+The graph @fig-general_overview shows that..
+
+```{r}
+#| label: fig-crimetype
+#| fig-cap: examing the number of crime case in 4 types from 2014-2024
+#| echo: false
+
+ggplot(analysis_data, aes(x = SUBTYPE)) +
+  geom_bar() +
+  labs(title = 'the number of cases in 4 crime types', y = 'total counts', x = 'crimes type') 
+```
+
+in the figure @fig-crimetype it shows
+
+```{r}
+#| label: fig-crime
+#| fig-cap: examing the number of crime case in 4 types from 2014-2024
+#| echo: false
+
+assaulted <- analysis_data %>% 
+  filter(SUBTYPE == "Assault") %>%
+  group_by(SEX) %>%
+  summarise(total_count = sum(COUNT_))
+
+ggplot(assaulted, aes(x = SEX, y = total_count, fill= SEX)) +
+  geom_bar(stat = "identity") +
+  labs(title = 'Gender Distribution in Assault Cases', y = 'total assault cases', x = 'gender') 
+```
+
 
 Talk more about it.
 
@@ -69,148 +108,6 @@ analysis_data |>
   labs(x = "Wing width (mm)",
        y = "Wing length (mm)")
 ```
-
-Talk way more about it. 
-
-
-
-# Model
-
-The goal of our modelling strategy is twofold. Firstly,...
-
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
-
-## Model set-up
-
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
-
-\begin{align} 
-y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha + \beta_i + \gamma_i\\
-\alpha &\sim \mbox{Normal}(0, 2.5) \\
-\beta &\sim \mbox{Normal}(0, 2.5) \\
-\gamma &\sim \mbox{Normal}(0, 2.5) \\
-\sigma &\sim \mbox{Exponential}(1)
-\end{align}
-
-We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
-
-
-### Model justification
-
-We expect a positive relationship between the size of the wings and time spent aloft. In particular...
-
-We can use maths by including latex between dollar signs, for instance $\theta$.
-
-
-# Results
-
-Our results are summarized in @tbl-modelresults.
-
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-
-library(rstanarm)
-
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
-```
-
-```{r}
-#| echo: false
-#| eval: true
-#| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
-#| warning: false
-
-modelsummary::modelsummary(
-  list(
-    "First model" = first_model
-  ),
-  statistic = "mad",
-  fmt = 2
-)
-```
-
-
-
-
-# Discussion
-
-## First discussion point {#sec-first-point}
-
-If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
-
-## Second discussion point
-
-## Third discussion point
-
-## Weaknesses and next steps
-
-Weaknesses and next steps should also be included.
-
-\newpage
-
-\appendix
-
-# Appendix {-}
-
-
-# Additional data details
-
-# Model details {#sec-model-details}
-
-## Posterior predictive check
-
-In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
-
-In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
-
-```{r}
-#| eval: true
-#| echo: false
-#| message: false
-#| warning: false
-#| label: fig-ppcheckandposteriorvsprior
-#| layout-ncol: 2
-#| fig-cap: "Examining how the model fits, and is affected by, the data"
-#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
-
-pp_check(first_model) +
-  theme_classic() +
-  theme(legend.position = "bottom")
-
-posterior_vs_prior(first_model) +
-  theme_minimal() +
-  scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom") +
-  coord_flip()
-```
-
-## Diagnostics
-
-@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
-
-@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
-
-```{r}
-#| echo: false
-#| eval: true
-#| message: false
-#| warning: false
-#| label: fig-stanareyouokay
-#| fig-cap: "Checking the convergence of the MCMC algorithm"
-#| fig-subcap: ["Trace plot", "Rhat plot"]
-#| layout-ncol: 2
-
-plot(first_model, "trace")
-
-plot(first_model, "rhat")
-```
-
 
 
 \newpage

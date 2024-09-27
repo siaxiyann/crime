@@ -11,19 +11,20 @@
 library(tidyverse)
 
 #### Simulate data ####
-number_of_year <- 10
+start_year <- 2014
+end_year <- 2023
+
+#set the number of random year 
+number_of_year <- 100
 
 set.seed(123)
 
 simulated_data <-
   tibble(
-    date = sample(2014:2023, size = number_of_year, replace = TRUE),
-      #as.Date(runif(n = number_of_dates, min = as.numeric(as.Date("2014")),
-                       #  max =  as.numeric(as.Date("2023")),)),
-    #stimulates the number of victims that being assulted using a Possion Distribution
-    victims_assulted = rpois(number_of_year, lambda = 100),
-    victims_sexual_violation = rpois(number_of_year, lambda = 100)
-  )
+    date = 
+      as.integer(runif(n = number_of_year, min = start_year, max = end_year)),
+    victims_assulted = rpois(number_of_year, lambda = 100)
+    )
 head(simulated_data)
 
 write_csv(simulated_data, file = "data/raw_data/simulated_data")
