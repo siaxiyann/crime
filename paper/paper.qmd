@@ -1,13 +1,12 @@
 ---
-title: "Analysis of characteristics in victims of crimes in Toronto"
-subtitle: "My subtitle if needed"
+title: "Analysis of victims structure from 2014 to 2023 in Toronto"
 author: 
   - Xiyan Chen
 thanks: "Code and data are available at: https://github.com/siaxiyann/crime.git"
 date: today
 date-format: long
-abstract: This criterion is linked to a Learning OutcomeAbstract
-An abstract is included and appropriately pitched to a non-specialist audience. The abstract answers: 1) what was done, 2) what was found, and 3) why this matters (all at a high level). Likely four sentences. Abstract must make clear what we learn about the world because of this paper. "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: Through data exploration, cleaning, visualization, and analysis, this research finds that assault is the most common crime in Toronto, with the total number of crimes increasing over the past 10 years. A closer look at assault cases reveals that male victims outnumber female victims. This finding provides a clearer perspective on public safety concerns, helping inform public safety strategies. 
+
 format: pdf
 number-sections: true
 bibliography: references.bib
@@ -26,30 +25,37 @@ library(dplyr)
 
 
 # Introduction
+Through the process of data exploration, cleaning, visualization, and analysis, this research identifies key trends in Toronto's crime landscape over the past decade(2014-2023). The research reveals that assault is the most frequently reported crime in the city while the total number of crime cases has shown a general upward trend over the last 10 years, with some fluctuations. This increase in crime rates raises important concerns regarding public safety, as it reflects a growing issue that requires attention from policymakers and law enforcement agencies.
 
-You can and should cross-reference sections and sub-sections. We use @citeR and @citeRohan
+A deeper examination of assault cases reveals a notable gender disparity among victims. The data indicates that male victims are more numerous than female victims, with approximately 93,750 male victims compared to 81,250 female victims over the 2014 to 2023 period. This finding provides important insights into how different demographics are impacted by crime in Toronto and highlights the need for targeted interventions and support services. By uncovering this gender-based distinction, the research offers a more nuanced understanding of victimization patterns, which can help inform public safety strategies and preventative measures.
 
-The remainder of this paper is structured as follows. @sec-data....
-The introduction is self-contained and tells a reader everything they need to know including: 1) broader context to motivate; 2) some detail about what the paper is about; 3) a clear gap that needs to be filled; 4) what was done; 5) what was found; 6) why it is important; 7) the structure of the paper. A reader should be able to read only the introduction and know what was done, why, and what was found. Likely 3 or 4 paragraphs, or 10 per cent of total.
+The structure of this paper begins with an overview of data sources and visualization methods, followed by graphical representations. And then the analysis section provided then the summary about the key outcomes.
 
 
 # Data {#sec-data}
+## Sources {#sec-sources}
+All the data was sourced from the Police Annual Statistical Report - Victims of Crimes dataset, available on open data portal of Toronto@opendatatoronto. The data was cleaned and analyzed using R@citeR, with the assistance of packages such as tidyverse@tidyverse, dplyr@rdplyr and @rohan. The graphs were generated using ggplot2 @ggplot2.
 
-Some of our data is of penguins (@zaizheli fig-bills), from @opendatatoronto.
-A sense of the dataset should be communicated to the reader. The broader context of the dataset should be discussed. All variables should be thoroughly examined and explained. Explain if there were similar datasets that could have been used and why they were not. If variables were constructed then this should be mentioned, and high-level cleaning aspects of note should be mentioned, but this section should focus on the destination, not the journey. It is important to understand what the variables look like by including graphs, and possibly tables, of all observations, along with discussion of those graphs and the other features of these data. Summary statistics should also be included, and well as any relationships between the variables. If this becomes too detailed, then appendices could be used.
-This criterion is linked to a Learning OutcomeMeasurement
-A thorough discussion of measurement, relating to the dataset, is provided in the data section.
+## Variables and Measurements {#sec-variables-and-measurements}
+There are similar datasets, such as the Police Annual Statistical Report - Crimes, which also provide insights into crime in Toronto. However, this paper focuses specifically on victims, making the Police Annual Statistical Report - Victims of Crimes dataset more relevant for this study.
+
+The original dataset contains 10 variables, four of which were selected for in-depth analysis. After cleaning the missing data and removing unselected columns, the variables chosen were: report year, subtype, sex, and count.
+
+More specifically, the report year represents the year the crime was reported, covering the period from 2014 to 2023. This variable helps examine the overall trend of victimization in Toronto over 10 years (see Figure @fig-general_overview). The subtype refers to the crime category, divided into four types: assault, robbery, sexual violation, and other. This categorization aids in further exploration by focusing on specific types of crimes -- assult.
+
+The sex variable denotes the gender of the identified victims, categorized as female, male, or unknown. The "unknown" category represents cases where the victim’s gender could not be determined. Lastly, count reflects the number of reported cases. Note that the count includes instances where the same person may be victimized multiple times for the same offense within the same period. To enhance the analysis, a new variable called total_count was created to reflect the total number of crimes each victim was involved in from 2014 to 2023. This was used in Figure @fig-crime to analyze the distribution of victims by gender.
+
 ```{r}
 analysis_data <- read_csv("../data/raw_data/analysis_data.csv")
 ```
-
+# Analysis {#sec-data}
 ```{r}
 #| label: fig-general_overview
 #| fig-cap: Distribution of crime types by year
 #| echo: false
 
 ggplot(analysis_data, aes(x = REPORT_YEAR, weight = COUNT_, fill = SUBTYPE)) +
-  geom_bar() + labs(title = 'crime cases overview from 2014-2023', y = 'total counts', x = 'report year') + 
+  geom_bar() + labs(title = 'Crime Cases Overview from 2014-2023', y = 'total counts', x = 'report year') + 
   scale_x_continuous(breaks = seq(min(analysis_data$REPORT_YEAR), max(analysis_data$REPORT_YEAR), by = 1))
   #scale_fill_manual(values = c("darkorange","purple","cyan4"),
   #                  guide = "none") +
@@ -58,19 +64,8 @@ ggplot(analysis_data, aes(x = REPORT_YEAR, weight = COUNT_, fill = SUBTYPE)) +
   #coord_flip()
 ```
 
-The graph @fig-general_overview shows that..
+The bar plot @fig-general_overview provides an overview of the number of victims in each crime case and the distribution of crime types. There was a slight increase in the total number of victims from 2014 to 2019, followed by a small decline in 2020. However, a significant upward trend is observed from 2020 to 2023. Notably, assault (represented by the red bar) is consistently the most frequent crime in Toronto each year, with the "other" crime category ranking second. Robbery and sexual violations are relatively equally distributed in terms of frequency.
 
-```{r}
-#| label: fig-crimetype
-#| fig-cap: examing the number of crime case in 4 types from 2014-2024
-#| echo: false
-
-ggplot(analysis_data, aes(x = SUBTYPE)) +
-  geom_bar() +
-  labs(title = 'the number of cases in 4 crime types', y = 'total counts', x = 'crimes type') 
-```
-
-in the figure @fig-crimetype it shows
 
 ```{r}
 #| label: fig-crime
@@ -87,28 +82,7 @@ ggplot(assaulted, aes(x = SEX, y = total_count, fill= SEX)) +
   labs(title = 'Gender Distribution in Assault Cases', y = 'total assault cases', x = 'gender') 
 ```
 
-
-Talk more about it.
-
-And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
-
-```{r}
-#| label: fig-planes
-#| fig-cap: Relationship between wing length and width
-#| echo: false
-#| warning: false
-#| message: false
-
-analysis_data <- read_csv(here::here("data/analysis_data/analysis_data.csv"))
-
-analysis_data |> 
-  ggplot(aes(x = width, y = length)) +
-  geom_point(alpha = 0.8) +
-  theme_minimal() +
-  labs(x = "Wing width (mm)",
-       y = "Wing length (mm)")
-```
-
+Focusing on assault, which is the most common crime in Toronto, Figure @fig-crime illustrates the distribution of assault victims by gender from 2014 to 2023. Male victims outnumber female victims, with approximately 93,750 male victims compared to 81,250 female victims during this period.
 
 \newpage
 

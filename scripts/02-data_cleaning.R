@@ -1,5 +1,5 @@
 #### Preamble ####
-# Purpose: Cleans the raw plane data recorded by two observers..... [...UPDATE THIS...]
+# Purpose: Cleans the raw data and prepares the data for analysis
 # Author: Xiyan Chen
 # Date: 24 September 2024 
 # Contact: xiyan.chen@mail.utoronto.ca
@@ -17,7 +17,6 @@ raw_data <- read_csv("data/raw_data/crime.csv")
 cleaned_data <- raw_data %>% 
   select(REPORT_YEAR, SUBTYPE,SEX,COUNT_) %>%
   mutate(
-    #_id = as.numeric(_id),
     REPORT_YEAR = as.numeric(REPORT_YEAR),
     COUNT_ = as.numeric(COUNT_)
     ) %>% 
